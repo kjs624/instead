@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
+import SocialLoginButtons from '@/components/ui/SocialLoginButtons'
 
 const schema = z.object({
   email: z.string().email('올바른 이메일 주소를 입력해주세요'),
@@ -83,6 +84,8 @@ export default function LoginPage() {
               로그인할게요
             </Button>
           </form>
+
+          <SocialLoginButtons />
         </div>
 
         <p className="text-center text-sm text-text-muted mt-5">

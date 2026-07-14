@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
+import SocialLoginButtons from '@/components/ui/SocialLoginButtons'
 
 const schema = z.object({
   nickname: z.string().min(2, '닉네임은 2자 이상이어야 해요').max(10, '닉네임은 10자 이하여야 해요'),
@@ -114,6 +115,8 @@ export default function SignupPage() {
               마음을 나눌게요
             </Button>
           </form>
+
+          <SocialLoginButtons />
         </div>
 
         <p className="text-center text-sm text-text-muted mt-5">
