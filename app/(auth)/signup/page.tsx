@@ -45,20 +45,15 @@ export default function SignupPage() {
     const { data, error } = await supabase.auth.signUp({
       email: values.email,
       password: values.password,
+      options: {
+        data: { nickname: values.nickname },
+      },
     })
 
     if (error || !data.user) {
       setError('root', { message: '가입 중 문제가 생겼어요. 다시 시도해주세요' })
       return
     }
-
-    await supabase.from('users').insert({
-      id: data.user.id,
-      nickname: values.nickname,
-      email: values.email,
-      avatar_url: null,
-      push_token: null,
-    })
 
     // 이메일 인증이 필요한 경우 (identities가 있지만 confirmed_at이 없음)
     const needsConfirmation = !data.user.confirmed_at
