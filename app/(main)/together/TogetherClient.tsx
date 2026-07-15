@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import GroupDonationCard from '@/components/donation/GroupDonationCard'
 import CreateGroupDonation from '@/components/donation/CreateGroupDonation'
 import { Button } from '@/components/ui/Button'
+import { createClient } from '@/lib/supabase/client'
 import type { GroupDonation } from '@/types'
 
 interface Props {
@@ -14,6 +15,23 @@ interface Props {
 export default function TogetherClient({ initialGroups }: Props) {
   const router = useRouter()
   const [showCreate, setShowCreate] = useState(false)
+  const [groups, setGroups] = useState<GroupDonation[]>(initialGroups)
+
+  useEffect(() => { setGroups(initialGroups) }, [initialGroups])
+
+  useEffect(() => {
+    const supabase = createClient()
+    const fetch = async () => {
+      const { data } = await supabase
+        .from('group_donations')
+        .select('*, organization:organizations(name), participants:group_participants(id)')
+        .order('created_at', { ascending: false })
+        .limit(20)
+      if (data) setGroups(data)
+    }
+    const interval = setInterval(fetch, 5000)
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <div className="max-w-lg mx-auto px-4 pt-6">
@@ -27,7 +45,7 @@ export default function TogetherClient({ initialGroups }: Props) {
         </Button>
       </div>
 
-      {initialGroups.length === 0 ? (
+      {groups.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-5xl mb-4">🌱</div>
           <p className="text-text-sub font-medium">아직 진행 중인 공동 기부가 없어요</p>
@@ -38,7 +56,7 @@ export default function TogetherClient({ initialGroups }: Props) {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {initialGroups.map((group) => (
+          {groups.map((group) => (
             <GroupDonationCard
               key={group.id}
               group={group}

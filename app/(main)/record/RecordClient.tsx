@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import RecordCard from '@/components/feed/RecordCard'
 import CreateRecord from '@/components/feed/CreateRecord'
 import { Button } from '@/components/ui/Button'
+import { createClient } from '@/lib/supabase/client'
 import type { DonationRecord } from '@/types'
 
 interface Props {
@@ -15,6 +16,32 @@ interface Props {
 export default function RecordClient({ userId, initialRecords }: Props) {
   const router = useRouter()
   const [showCreate, setShowCreate] = useState(false)
+  const [records, setRecords] = useState<DonationRecord[]>(initialRecords)
+
+  useEffect(() => { setRecords(initialRecords) }, [initialRecords])
+
+  useEffect(() => {
+    const supabase = createClient()
+    const fetch = async () => {
+      const [{ data: r }, { data: likes }] = await Promise.all([
+        supabase
+          .from('donation_records')
+          .select('*, user:users(nickname)')
+          .order('created_at', { ascending: false })
+          .limit(20),
+        supabase
+          .from('record_likes')
+          .select('record_id')
+          .eq('user_id', userId),
+      ])
+      if (r) {
+        const likedIds = new Set(likes?.map((l) => l.record_id) ?? [])
+        setRecords(r.map((rec) => ({ ...rec, liked_by_me: likedIds.has(rec.id) })))
+      }
+    }
+    const interval = setInterval(fetch, 5000)
+    return () => clearInterval(interval)
+  }, [userId])
 
   return (
     <div className="max-w-lg mx-auto px-4 pt-6">
@@ -28,7 +55,7 @@ export default function RecordClient({ userId, initialRecords }: Props) {
         </Button>
       </div>
 
-      {initialRecords.length === 0 ? (
+      {records.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-5xl mb-4">🌸</div>
           <p className="text-text-sub font-medium">아직 나눔 기록이 없어요</p>
@@ -39,7 +66,7 @@ export default function RecordClient({ userId, initialRecords }: Props) {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {initialRecords.map((record) => (
+          {records.map((record) => (
             <RecordCard key={record.id} record={record} currentUserId={userId} />
           ))}
         </div>
