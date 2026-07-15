@@ -11,7 +11,7 @@ const schema = z.object({
   content: z.string().min(10, '최소 10자 이상 써주세요').max(150, '150자를 초과할 수 없어요'),
   org_id: z.string().min(1, '기부 단체를 선택해주세요'),
   amount: z.number().min(100, '최소 100원이에요').max(100000, '최대 10만원까지 가능해요'),
-  anonymous: z.boolean().default(false),
+  anonymous: z.boolean(),
 })
 
 type FormValues = z.infer<typeof schema>
