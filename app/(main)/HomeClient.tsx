@@ -31,40 +31,29 @@ export default function HomeClient({ userId, initialReceived, initialSent }: Pro
       .channel('letters-realtime')
       .on(
         'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'letters',
-          filter: `receiver_id=eq.${userId}`,
-        },
+        { event: 'INSERT', schema: 'public', table: 'letters' },
         async (payload) => {
-          if (payload.eventType === 'INSERT') {
-            // 발신자 닉네임과 단체명 추가로 조회
-            const { data } = await supabase
-              .from('letters')
-              .select('*, sender:users!letters_sender_id_fkey(nickname), organization:organizations(name)')
-              .eq('id', (payload.new as Letter).id)
-              .single()
-            if (data) setReceived((prev) => [data, ...prev])
-          } else if (payload.eventType === 'UPDATE') {
-            setReceived((prev) =>
-              prev.map((l) => (l.id === (payload.new as Letter).id ? { ...l, ...payload.new } : l))
-            )
-          }
+          const row = payload.new as Letter
+          if (row.receiver_id !== userId) return
+          const { data } = await supabase
+            .from('letters')
+            .select('*, sender:users!letters_sender_id_fkey(nickname), organization:organizations(name)')
+            .eq('id', row.id)
+            .single()
+          if (data) setReceived((prev) => [data, ...prev])
         }
       )
       .on(
         'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'letters',
-          filter: `sender_id=eq.${userId}`,
-        },
+        { event: 'UPDATE', schema: 'public', table: 'letters' },
         (payload) => {
-          setSent((prev) =>
-            prev.map((l) => (l.id === (payload.new as Letter).id ? { ...l, ...payload.new } : l))
-          )
+          const row = payload.new as Letter
+          if (row.receiver_id === userId) {
+            setReceived((prev) => prev.map((l) => (l.id === row.id ? { ...l, ...row } : l)))
+          }
+          if (row.sender_id === userId) {
+            setSent((prev) => prev.map((l) => (l.id === row.id ? { ...l, ...row } : l)))
+          }
         }
       )
       .subscribe()
