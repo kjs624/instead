@@ -37,7 +37,10 @@ export async function POST(request: NextRequest) {
       .select()
       .single()
 
-    if (error) return NextResponse.json({ error: '편지 전송에 실패했어요' }, { status: 500 })
+    if (error) {
+      console.error('[letter/send] pending insert error:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
     return NextResponse.json({ letter, matched: false })
   }
 
@@ -59,7 +62,10 @@ export async function POST(request: NextRequest) {
     .select()
     .single()
 
-  if (error) return NextResponse.json({ error: '편지 전송에 실패했어요' }, { status: 500 })
+  if (error) {
+    console.error('[letter/send] matched insert error:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
 
   return NextResponse.json({ letter, matched: true })
 }
