@@ -11,6 +11,7 @@ const schema = z.object({
   content: z.string().min(10, '최소 10자 이상 써주세요').max(150, '150자를 초과할 수 없어요'),
   org_id: z.string().min(1, '기부 단체를 선택해주세요'),
   amount: z.number().min(100, '최소 100원이에요').max(100000, '최대 10만원까지 가능해요'),
+  anonymous: z.boolean().default(false),
 })
 
 type FormValues = z.infer<typeof schema>
@@ -30,16 +31,17 @@ export default function LetterCompose({ onSuccess, onClose }: Props) {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { amount: 1000 },
+    defaultValues: { amount: 1000, anonymous: false },
   })
 
   const contentLength = watch('content')?.length ?? 0
+  const anonymous = watch('anonymous')
 
   const onSubmit = async (values: FormValues) => {
     const res = await fetch('/api/letter/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(values),
+      body: JSON.stringify({ ...values, sender_named: !values.anonymous }),
     })
 
     const data = await res.json()
@@ -117,6 +119,18 @@ export default function LetterCompose({ onSuccess, onClose }: Props) {
           />
           {errors.amount && <p className="text-red-400 text-xs mt-1">{errors.amount.message}</p>}
         </div>
+
+        <label className="flex items-center gap-2.5 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            {...register('anonymous')}
+            className="w-4 h-4 rounded accent-primary"
+          />
+          <span className="text-sm text-text-sub">
+            익명으로 보내기
+            {anonymous && <span className="ml-1.5 text-xs text-text-muted">(상대방에게 내 닉네임이 보이지 않아요)</span>}
+          </span>
+        </label>
 
         <Button type="submit" loading={isSubmitting} size="lg" className="w-full mt-1">
           마음을 전송할게요 💌

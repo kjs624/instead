@@ -11,6 +11,7 @@ interface LetterItem {
   id: string
   status: string
   created_at: string
+  amount: number
   organization: { name: string } | { name: string }[] | null
 }
 
@@ -53,6 +54,7 @@ export default function MypageClient({ userId, profile, letters, groups }: Props
   }
 
   const completedLetters = letters.filter((l) => l.status === 'completed').length
+  const totalAmount = letters.filter((l) => l.status === 'completed').reduce((sum, l) => sum + (l.amount ?? 0), 0)
 
   return (
     <div className="max-w-lg mx-auto px-4 pt-6 pb-8">
@@ -83,6 +85,12 @@ export default function MypageClient({ userId, profile, letters, groups }: Props
             <p className="text-xs text-text-muted">공동 기부</p>
           </div>
         </div>
+        {totalAmount > 0 && (
+          <div className="mt-3 pt-3 border-t border-border text-center">
+            <p className="text-sm text-text-muted">내가 참여한 총 기부금액</p>
+            <p className="text-xl font-bold text-primary mt-0.5">{totalAmount.toLocaleString()}원</p>
+          </div>
+        )}
       </Card>
 
       <Card className="mb-4">

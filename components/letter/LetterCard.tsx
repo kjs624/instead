@@ -46,7 +46,9 @@ export default function LetterCard({ letter, currentUserId, onUpdate }: Props) {
 
   const statusInfo = STATUS_LABELS[letter.status]
   const orgName = letter.organization?.name ?? '기부 단체'
-  const senderNick = isReceiver ? (letter.sender?.nickname ?? '소망자') : '나'
+  const senderNick = isReceiver
+    ? (letter.sender_named ? (letter.sender?.nickname ?? '소망자') : '익명')
+    : '나'
 
   return (
     <Card className="gap-3 flex flex-col">

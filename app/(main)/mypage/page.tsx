@@ -9,7 +9,7 @@ export default async function MypagePage() {
     supabase.from('users').select('*').eq('id', user!.id).single(),
     supabase
       .from('letters')
-      .select('id, status, created_at, organization:organizations(name)')
+      .select('id, status, created_at, amount, organization:organizations(name)')
       .or(`sender_id.eq.${user!.id},receiver_id.eq.${user!.id}`)
       .order('created_at', { ascending: false })
       .limit(10),

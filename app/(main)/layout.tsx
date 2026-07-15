@@ -11,7 +11,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <main className="flex-1 pb-20">{children}</main>
-      <BottomNav />
+      <BottomNav userId={user!.id} />
     </div>
   )
 }
