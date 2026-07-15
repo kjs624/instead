@@ -14,6 +14,10 @@ const schema = z.object({
   nickname: z.string().min(2, '닉네임은 2자 이상이어야 해요').max(10, '닉네임은 10자 이하여야 해요'),
   email: z.string().email('올바른 이메일 주소를 입력해주세요'),
   password: z.string().min(6, '비밀번호는 6자 이상이어야 해요'),
+  passwordConfirm: z.string(),
+}).refine((d) => d.password === d.passwordConfirm, {
+  message: '비밀번호가 일치하지 않아요',
+  path: ['passwordConfirm'],
 })
 
 type FormValues = z.infer<typeof schema>
@@ -123,6 +127,17 @@ export default function SignupPage() {
                 className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-text-main text-sm placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
               />
               {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm text-text-sub mb-1.5">비밀번호 확인</label>
+              <input
+                {...register('passwordConfirm')}
+                type="password"
+                placeholder="비밀번호를 한 번 더 입력해주세요"
+                className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-text-main text-sm placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+              />
+              {errors.passwordConfirm && <p className="text-red-400 text-xs mt-1">{errors.passwordConfirm.message}</p>}
             </div>
 
             {errors.root && (
