@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/Button'
 import SocialLoginButtons from '@/components/ui/SocialLoginButtons'
@@ -19,6 +20,7 @@ type FormValues = z.infer<typeof schema>
 
 export default function SignupPage() {
   const router = useRouter()
+  const [emailSent, setEmailSent] = useState(false)
   const {
     register,
     handleSubmit,
@@ -58,6 +60,13 @@ export default function SignupPage() {
       push_token: null,
     })
 
+    // 이메일 인증이 필요한 경우 (identities가 있지만 confirmed_at이 없음)
+    const needsConfirmation = !data.user.confirmed_at
+    if (needsConfirmation) {
+      setEmailSent(true)
+      return
+    }
+
     router.push('/')
     router.refresh()
   }
@@ -70,6 +79,20 @@ export default function SignupPage() {
           <h1 className="text-2xl font-bold text-text-main">대신 기부</h1>
           <p className="text-text-muted text-sm mt-1">따뜻한 마음을 함께 나눠요</p>
         </div>
+
+        {emailSent ? (
+          <div className="bg-surface rounded-2xl border border-border p-8 shadow-sm text-center">
+            <div className="text-5xl mb-4">📬</div>
+            <h2 className="text-lg font-semibold text-text-main mb-2">이메일을 확인해주세요</h2>
+            <p className="text-text-sub text-sm leading-relaxed">
+              가입하신 이메일로 인증 링크를 보냈어요.<br />
+              링크를 클릭하면 바로 시작할 수 있어요!
+            </p>
+            <Link href="/login" className="inline-block mt-5 text-sm text-primary font-medium hover:underline">
+              로그인 페이지로 →
+            </Link>
+          </div>
+        ) : (
 
         <div className="bg-surface rounded-2xl border border-border p-6 shadow-sm">
           <h2 className="text-lg font-semibold text-text-main mb-5">함께해요</h2>
@@ -119,12 +142,16 @@ export default function SignupPage() {
           <SocialLoginButtons />
         </div>
 
-        <p className="text-center text-sm text-text-muted mt-5">
-          이미 계정이 있으신가요?{' '}
-          <Link href="/login" className="text-primary font-medium hover:underline">
-            시작할게요
-          </Link>
-        </p>
+        )}
+
+        {!emailSent && (
+          <p className="text-center text-sm text-text-muted mt-5">
+            이미 계정이 있으신가요?{' '}
+            <Link href="/login" className="text-primary font-medium hover:underline">
+              시작할게요
+            </Link>
+          </p>
+        )}
       </div>
     </div>
   )

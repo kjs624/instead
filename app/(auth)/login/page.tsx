@@ -33,7 +33,13 @@ export default function LoginPage() {
     })
 
     if (error) {
-      setError('root', { message: '이메일 또는 비밀번호가 일치하지 않아요' })
+      if (error.message.includes('Email not confirmed')) {
+        setError('root', { message: '이메일 인증이 필요해요. 받은 편지함을 확인해주세요 📬' })
+      } else if (error.message.includes('Invalid login credentials')) {
+        setError('root', { message: '이메일 또는 비밀번호가 일치하지 않아요' })
+      } else {
+        setError('root', { message: error.message })
+      }
       return
     }
 
