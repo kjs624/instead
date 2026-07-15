@@ -21,6 +21,9 @@ const features = [
 export default function IntroPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <div className="flex justify-end px-4 pt-3">
+        <span className="text-[10px] text-text-muted">현재 데모 버전이며 8월 17일 개발 완료 예정</span>
+      </div>
       {/* Hero */}
       <div className="flex-1 flex flex-col items-center justify-center px-6 pt-16 pb-8 text-center">
         <div className="text-6xl mb-4">🌱</div>
