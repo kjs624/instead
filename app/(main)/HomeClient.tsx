@@ -21,6 +21,9 @@ export default function HomeClient({ userId, initialReceived, initialSent }: Pro
   const [received, setReceived] = useState<Letter[]>(initialReceived)
   const [sent, setSent] = useState<Letter[]>(initialSent)
 
+  useEffect(() => { setReceived(initialReceived) }, [initialReceived])
+  useEffect(() => { setSent(initialSent) }, [initialSent])
+
   useEffect(() => {
     const supabase = createClient()
 
