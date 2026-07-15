@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import LetterCard from '@/components/letter/LetterCard'
 import LetterCompose from '@/components/letter/LetterCompose'
 import { Button } from '@/components/ui/Button'
+import { createClient } from '@/lib/supabase/client'
 import type { Letter } from '@/types'
 
 interface Props {
@@ -17,8 +18,60 @@ export default function HomeClient({ userId, initialReceived, initialSent }: Pro
   const router = useRouter()
   const [tab, setTab] = useState<'received' | 'sent'>('received')
   const [showCompose, setShowCompose] = useState(false)
+  const [received, setReceived] = useState<Letter[]>(initialReceived)
+  const [sent, setSent] = useState<Letter[]>(initialSent)
 
-  const letters = tab === 'received' ? initialReceived : initialSent
+  useEffect(() => {
+    const supabase = createClient()
+
+    const channel = supabase
+      .channel('letters-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'letters',
+          filter: `receiver_id=eq.${userId}`,
+        },
+        async (payload) => {
+          if (payload.eventType === 'INSERT') {
+            // 발신자 닉네임과 단체명 추가로 조회
+            const { data } = await supabase
+              .from('letters')
+              .select('*, sender:users!letters_sender_id_fkey(nickname), organization:organizations(name)')
+              .eq('id', (payload.new as Letter).id)
+              .single()
+            if (data) setReceived((prev) => [data, ...prev])
+          } else if (payload.eventType === 'UPDATE') {
+            setReceived((prev) =>
+              prev.map((l) => (l.id === (payload.new as Letter).id ? { ...l, ...payload.new } : l))
+            )
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'letters',
+          filter: `sender_id=eq.${userId}`,
+        },
+        (payload) => {
+          setSent((prev) =>
+            prev.map((l) => (l.id === (payload.new as Letter).id ? { ...l, ...payload.new } : l))
+          )
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [userId])
+
+  const letters = tab === 'received' ? received : sent
 
   return (
     <div className="max-w-lg mx-auto px-4 pt-6">
@@ -39,7 +92,7 @@ export default function HomeClient({ userId, initialReceived, initialSent }: Pro
             tab === 'received' ? 'bg-surface text-primary shadow-sm' : 'text-text-muted'
           }`}
         >
-          받은 편지 ({initialReceived.length})
+          받은 편지 ({received.length})
         </button>
         <button
           onClick={() => setTab('sent')}
@@ -47,7 +100,7 @@ export default function HomeClient({ userId, initialReceived, initialSent }: Pro
             tab === 'sent' ? 'bg-surface text-primary shadow-sm' : 'text-text-muted'
           }`}
         >
-          보낸 편지 ({initialSent.length})
+          보낸 편지 ({sent.length})
         </button>
       </div>
 
@@ -83,7 +136,10 @@ export default function HomeClient({ userId, initialReceived, initialSent }: Pro
         <div className="fixed inset-0 bg-black/40 z-40 flex items-end">
           <div className="bg-surface w-full max-w-lg mx-auto rounded-t-2xl shadow-xl max-h-[90vh] overflow-y-auto">
             <LetterCompose
-              onSuccess={() => router.refresh()}
+              onSuccess={() => {
+                router.refresh()
+                setSent((prev) => prev)
+              }}
               onClose={() => setShowCompose(false)}
             />
           </div>
