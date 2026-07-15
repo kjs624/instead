@@ -27,22 +27,27 @@ export default function HomeClient({ userId, initialReceived, initialSent }: Pro
   useEffect(() => {
     const supabase = createClient()
 
-    const channel = supabase
-      .channel(`user-${userId}`)
-      .on('broadcast', { event: 'new-letter' }, async () => {
-        const { data } = await supabase
+    const fetchLetters = async () => {
+      const [{ data: r }, { data: s }] = await Promise.all([
+        supabase
           .from('letters')
           .select('*, sender:users!letters_sender_id_fkey(nickname), organization:organizations(name)')
           .eq('receiver_id', userId)
           .order('created_at', { ascending: false })
-          .limit(20)
-        if (data) setReceived(data)
-      })
-      .subscribe()
-
-    return () => {
-      supabase.removeChannel(channel)
+          .limit(20),
+        supabase
+          .from('letters')
+          .select('*, organization:organizations(name)')
+          .eq('sender_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(20),
+      ])
+      if (r) setReceived(r)
+      if (s) setSent(s)
     }
+
+    const interval = setInterval(fetchLetters, 5000)
+    return () => clearInterval(interval)
   }, [userId])
 
   const letters = tab === 'received' ? received : sent
