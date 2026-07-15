@@ -28,34 +28,16 @@ export default function HomeClient({ userId, initialReceived, initialSent }: Pro
     const supabase = createClient()
 
     const channel = supabase
-      .channel('letters-realtime')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'letters' },
-        async (payload) => {
-          const row = payload.new as Letter
-          if (row.receiver_id !== userId) return
-          const { data } = await supabase
-            .from('letters')
-            .select('*, sender:users!letters_sender_id_fkey(nickname), organization:organizations(name)')
-            .eq('id', row.id)
-            .single()
-          if (data) setReceived((prev) => [data, ...prev])
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'letters' },
-        (payload) => {
-          const row = payload.new as Letter
-          if (row.receiver_id === userId) {
-            setReceived((prev) => prev.map((l) => (l.id === row.id ? { ...l, ...row } : l)))
-          }
-          if (row.sender_id === userId) {
-            setSent((prev) => prev.map((l) => (l.id === row.id ? { ...l, ...row } : l)))
-          }
-        }
-      )
+      .channel(`user-${userId}`)
+      .on('broadcast', { event: 'new-letter' }, async () => {
+        const { data } = await supabase
+          .from('letters')
+          .select('*, sender:users!letters_sender_id_fkey(nickname), organization:organizations(name)')
+          .eq('receiver_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(20)
+        if (data) setReceived(data)
+      })
       .subscribe()
 
     return () => {

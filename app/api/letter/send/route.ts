@@ -67,5 +67,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
+  // 수신자에게 Broadcast로 알림
+  await supabase.channel(`user-${partner.id}`).send({
+    type: 'broadcast',
+    event: 'new-letter',
+    payload: { letter_id: letter.id },
+  })
+
   return NextResponse.json({ letter, matched: true })
 }
