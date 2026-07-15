@@ -87,6 +87,9 @@ export default function SignupPage() {
               가입하신 이메일로 인증 링크를 보냈어요.<br />
               링크를 클릭하면 바로 시작할 수 있어요!
             </p>
+            <p className="text-text-muted text-xs mt-3">
+              📌 이메일이 안 보이면 <span className="font-medium">스팸 폴더</span>도 확인해주세요
+            </p>
             <Link href="/login" className="inline-block mt-5 text-sm text-primary font-medium hover:underline">
               로그인 페이지로 →
             </Link>

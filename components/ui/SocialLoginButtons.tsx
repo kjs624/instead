@@ -8,10 +8,11 @@ type Provider = 'google' | 'kakao'
 const PROVIDERS: { id: Provider; label: string; bg: string; text: string; border: string; icon: React.ReactNode; disabled?: boolean }[] = [
   {
     id: 'google',
-    label: 'Google로 계속하기',
-    bg: 'bg-white',
-    text: 'text-[#3c4043]',
-    border: 'border border-[#dadce0]',
+    label: 'Google (준비 중)',
+    bg: 'bg-white/40',
+    text: 'text-[#3c4043]/40',
+    border: 'border border-[#dadce0]/40',
+    disabled: true,
     icon: (
       <svg width="18" height="18" viewBox="0 0 18 18">
         <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
