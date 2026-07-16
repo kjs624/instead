@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import BottomNav from '@/components/ui/BottomNav'
+import PageTransition from '@/components/ui/PageTransition'
 import Link from 'next/link'
 
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
@@ -39,7 +40,9 @@ export default async function MainLayout({ children }: { children: React.ReactNo
           </div>
         </Link>
       </header>
-      <main className="flex-1 pb-24">{children}</main>
+      <main className="flex-1 pb-24">
+        <PageTransition>{children}</PageTransition>
+      </main>
       <BottomNav userId={user.id} />
     </div>
   )

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import IntroReveal from './IntroReveal'
+import { createClient } from '@/lib/supabase/server'
 
 const css = `
 .ip {
@@ -310,7 +311,19 @@ const css = `
 }
 `
 
-export default function IntroPage() {
+export default async function IntroPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  let initial: string | null = null
+  if (user) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('nickname')
+      .eq('id', user.id)
+      .maybeSingle()
+    initial = profile?.nickname?.[0]?.toUpperCase() ?? '?'
+  }
   return (
     <div className="ip">
       <style>{css}</style>
@@ -320,11 +333,27 @@ export default function IntroPage() {
       <nav className="ip-nav">
         <Link href="/intro" className="ip-logo">🌱 대신 기부</Link>
         <ul className="ip-nav-links">
-          <li><a href="#">편지 기부</a></li>
-          <li><a href="#">공동 기부</a></li>
-          <li><a href="#">나눔 기록</a></li>
+          <li><Link href="/">편지 기부</Link></li>
+          <li><Link href="/together">공동 기부</Link></li>
+          <li><Link href="/record">나눔 기록</Link></li>
         </ul>
-        <Link href="/signup" className="ip-btn-nav">시작할게요</Link>
+        {initial ? (
+          <Link
+            href="/mypage"
+            aria-label="마이페이지"
+            style={{
+              width: 34, height: 34, borderRadius: '50%',
+              background: '#3A6E48', color: '#fff',
+              fontSize: 14, fontWeight: 700,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              textDecoration: 'none',
+            }}
+          >
+            {initial}
+          </Link>
+        ) : (
+          <Link href="/signup" className="ip-btn-nav">시작할게요</Link>
+        )}
       </nav>
 
       <section className="ip-hero">
