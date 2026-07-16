@@ -1,19 +1,19 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-primary: #FF8C69;
-  --color-secondary: #FFB347;
-  --color-background: #FFF8F3;
-  --color-surface: #FFFFFF;
-  --color-text-main: #2D1B0E;
-  --color-text-sub: #7A5C4A;
-  --color-text-muted: #B8956A;
-  --color-success: #6BBF8E;
-  --color-border: #F0E6DD;
+  --color-primary: #3A6E48;
+  --color-secondary: #B87D1A;
+  --color-background: #F1F7EF;
+  --color-surface: #FAFDF9;
+  --color-text-main: #1E2D1A;
+  --color-text-sub: #5A7050;
+  --color-text-muted: #8AAE7E;
+  --color-success: #3A6E48;
+  --color-border: #D2E5CC;
 }
 
 body {
-  background-color: #FFF8F3;
-  color: #2D1B0E;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
+  background-color: #F1F7EF;
+  color: #1E2D1A;
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
 }

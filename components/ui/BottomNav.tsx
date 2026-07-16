@@ -36,28 +36,37 @@ export default function BottomNav({ userId }: Props) {
   ]
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-surface border-t border-border safe-area-pb">
-      <div className="flex max-w-lg mx-auto">
-        {navItems.map(({ href, label, icon, badge }) => {
-          const active = pathname === href
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`flex-1 flex flex-col items-center py-2.5 gap-0.5 text-xs transition-colors ${
-                active ? 'text-primary' : 'text-text-muted'
-              }`}
-            >
-              <span className="text-xl leading-none relative">
-                {icon}
-                {badge && (
-                  <span className="absolute -top-0.5 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-                )}
-              </span>
-              <span className={`font-medium ${active ? 'text-primary' : 'text-text-muted'}`}>{label}</span>
-            </Link>
-          )
-        })}
+    <nav className="fixed bottom-0 left-0 right-0 z-50">
+      <div className="max-w-lg mx-auto">
+        <div
+          className="mx-3 mb-3 rounded-2xl border border-border flex"
+          style={{ background: '#FAFDF9', boxShadow: '0 4px 24px rgba(30,45,26,0.10)' }}
+        >
+          {navItems.map(({ href, label, icon, badge }) => {
+            const active = pathname === href
+            return (
+              <Link
+                key={href}
+                href={href}
+                className="flex-1 flex flex-col items-center py-3 gap-0.5 rounded-2xl transition-all"
+                style={active ? { background: '#3A6E48' } : {}}
+              >
+                <span className="text-xl leading-none relative">
+                  {icon}
+                  {badge && (
+                    <span className="absolute -top-0.5 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+                  )}
+                </span>
+                <span
+                  className="text-xs font-semibold"
+                  style={{ color: active ? '#fff' : '#8AAE7E' }}
+                >
+                  {label}
+                </span>
+              </Link>
+            )
+          })}
+        </div>
       </div>
     </nav>
   )
