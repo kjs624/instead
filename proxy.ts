@@ -29,7 +29,8 @@ export async function proxy(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/signup') ||
     request.nextUrl.pathname.startsWith('/onboarding') ||
     request.nextUrl.pathname.startsWith('/auth/callback') ||
-    request.nextUrl.pathname.startsWith('/intro')
+    request.nextUrl.pathname.startsWith('/intro') ||
+    request.nextUrl.pathname.startsWith('/auth/verified')
 
   if (!user && !isPublicPage) {
     const url = request.nextUrl.clone()

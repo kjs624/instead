@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      return NextResponse.redirect(`${origin}${next}`)
+      return NextResponse.redirect(`${origin}/auth/verified`)
     }
   }
 
