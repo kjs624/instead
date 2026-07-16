@@ -38,7 +38,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  if (user && isPublicPage) {
+  const isIntroPage = request.nextUrl.pathname.startsWith('/intro')
+  if (user && isPublicPage && !isIntroPage) {
     const url = request.nextUrl.clone()
     url.pathname = '/'
     return NextResponse.redirect(url)
