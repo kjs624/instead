@@ -24,8 +24,15 @@ export async function GET(request: NextRequest) {
         if (!profile) {
           return NextResponse.redirect(`${origin}/onboarding`)
         }
+
+        // Google / Kakao 로그인 → 바로 홈으로 (이메일 인증 페이지 필요 없음)
+        const provider = user.app_metadata?.provider
+        if (provider === 'google' || provider === 'kakao') {
+          return NextResponse.redirect(`${origin}/`)
+        }
       }
 
+      // 이메일 인증 완료 → 인증 완료 페이지로
       return NextResponse.redirect(`${origin}/auth/verified`)
     }
   }
